@@ -7,6 +7,8 @@
 
 #include "FreeRTOSConfig.h"
 
+#define MEMFAULT_FREERTOS_PORT_USE_STATIC_ALLOCATION 0
+
 //! By default, The Memfault FreeRTOS port determines what memory allocation scheme to
 //! use based on the configSUPPORT_STATIC_ALLOCATION & configSUPPORT_DYNAMIC_ALLOCATION defines
 //! within FreeRTOSConfig.h.
