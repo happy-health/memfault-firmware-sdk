@@ -54,3 +54,11 @@ bool memfault_platform_metrics_timer_boot(uint32_t period_sec,
   xTimerStart(timer, 0);
   return true;
 }
+
+static uint32_t s_take_mutex_recursive_fail_count = 0;
+void memfault_freertos_trace_take_mutex_recursive_failed(void *mutex)
+{
+    ++s_take_mutex_recursive_fail_count;
+    // Capture "traceTAKE_MUTEX_RECURSIVE_FAILED" events for memfault heartbeat metrics
+    memfault_metrics_heartbeat_set_unsigned(MEMFAULT_METRICS_KEY(MutexLockFailures), s_take_mutex_recursive_fail_count);
+}
