@@ -18,6 +18,7 @@ extern "C" {
 
 void memfault_freertos_trace_task_create(void *tcb);
 void memfault_freertos_trace_task_delete(void *tcb);
+void memfault_freertos_trace_take_mutex_recursive_failed(void *mutex);
 
 #endif
 
@@ -32,6 +33,10 @@ void memfault_freertos_trace_task_delete(void *tcb);
 
 #ifndef traceTASK_DELETE
 #define traceTASK_DELETE(pxTaskToDelete) memfault_freertos_trace_task_delete(pxTaskToDelete)
+#endif
+
+#ifndef traceTAKE_MUTEX_RECURSIVE_FAILED
+#define traceTAKE_MUTEX_RECURSIVE_FAILED( pxMutex ) memfault_freertos_trace_take_mutex_recursive_failed(pxMutex)
 #endif
 
 //! A define that is used to assert that this file has been included from FreeRTOSConfig.h
