@@ -79,6 +79,9 @@ typedef enum MfltTraceReasonUser {
   // (memfault_demo_cli_cmd_trace_event.c) and can be used for a user test command as well.
   MEMFAULT_TRACE_REASON_DEFINE(MemfaultCli_Test)
 
+  // Daq has been stopped
+  MEMFAULT_TRACE_REASON_DEFINE(StopDaq)
+
   kMfltTraceReasonUser_NumReasons,
 } eMfltTraceReasonUser;
 
