@@ -18,6 +18,8 @@
 #include "memfault/panics/coredump.h"
 #include "memfault/panics/coredump_impl.h"
 
+#include "hpy_assert.h"
+
 static eMemfaultRebootReason s_crash_reason = kMfltRebootReason_Unknown;
 
 typedef MEMFAULT_PACKED_STRUCT MfltCortexMRegs {
@@ -177,10 +179,12 @@ void memfault_fault_handler(const sMfltRegState *regs, eMemfaultRebootReason rea
     memfault_reboot_tracking_mark_coredump_saved();
   }
 
+  // DVC-1772: Allows assert to be captured in forensics.
+  hpy_assert_write_assert_code_to_nvm();
+
   memfault_platform_reboot();
   MEMFAULT_UNREACHABLE;
 }
-
 
 
 // The fault handling shims below figure out what stack was being used leading up to the exception,
