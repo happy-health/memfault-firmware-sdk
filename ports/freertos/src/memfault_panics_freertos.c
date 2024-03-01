@@ -14,6 +14,10 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#if !defined(IS_BOOTLOADER) && !defined(RF_TOOLS_CLI)
+#include "hpy_assert.h"
+#endif
+
 //! Collect a coredump when a FreeRTOS assert takes place
 //!
 //! Implementation for assert function present in FreeRTOSConfig.h:
@@ -29,6 +33,10 @@ void vAssertCalled(MEMFAULT_UNUSED const char *file,
 //!  configCHECK_FOR_STACK_OVERFLOW != 0
 void vApplicationStackOverflowHook(MEMFAULT_UNUSED TaskHandle_t xTask,
                                    MEMFAULT_UNUSED char *pcTaskName) {
+#if !defined(IS_BOOTLOADER) && !defined(RF_TOOLS_CLI)
+  OS_ASSERT_ID(HPY_ASSERT_ID_MF_STACK_OVERFLOW);
+#endif
+
   MEMFAULT_ASSERT(0);
 }
 #endif
