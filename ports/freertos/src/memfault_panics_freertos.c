@@ -33,8 +33,13 @@ void vAssertCalled(MEMFAULT_UNUSED const char *file,
 //!  configCHECK_FOR_STACK_OVERFLOW != 0
 void vApplicationStackOverflowHook(MEMFAULT_UNUSED TaskHandle_t xTask,
                                    MEMFAULT_UNUSED char *pcTaskName) {
+
+// DVC-2046: Use the LOCK version of OS_ASSERT_ID since we want to hard capture
+//           the assert caller. Without this, the assert ID gets lost prior
+//           to the final write to NVM.
+
 #if !defined(IS_BOOTLOADER) && !defined(RF_TOOLS_CLI)
-  OS_ASSERT_ID(HPY_ASSERT_ID_MF_STACK_OVERFLOW);
+  OS_ASSERT_LOCK_ID(HPY_ASSERT_ID_MF_STACK_OVERFLOW);
 #endif
 
   MEMFAULT_ASSERT(0);
