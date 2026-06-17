@@ -21,6 +21,13 @@
 // this was an intentional assert (not a real HardFault) even though the
 // `udf` trap inside MEMFAULT_ASSERT will create a CPU exception frame.
 extern volatile bool s_assert_in_progress;
+// DVC-2263: Caller PC for the OS_ASSERT site. __builtin_return_address(0)
+// returns LR-at-entry of this function, which is the instruction after
+// the BL into vAssertCalled — i.e., the address right after the user's
+// OS_ASSERT(...) line. addr2line on the host resolves it to that source
+// line. Captured BEFORE MEMFAULT_ASSERT runs so the udf trap can't
+// clobber it.
+extern volatile uint32_t s_assert_caller_pc;
 #endif
 
 //! Collect a coredump when a FreeRTOS assert takes place
@@ -30,6 +37,7 @@ extern volatile bool s_assert_in_progress;
 void vAssertCalled(MEMFAULT_UNUSED const char *file,
                    MEMFAULT_UNUSED int line) {
 #if !defined(IS_BOOTLOADER) && !defined(RF_TOOLS_CLI)
+  s_assert_caller_pc = (uint32_t)__builtin_return_address(0);
   s_assert_in_progress = true;
 #endif
   MEMFAULT_ASSERT(0);
@@ -48,6 +56,10 @@ void vApplicationStackOverflowHook(MEMFAULT_UNUSED TaskHandle_t xTask,
 
 #if !defined(IS_BOOTLOADER) && !defined(RF_TOOLS_CLI)
   OS_ASSERT_LOCK_ID(HPY_ASSERT_ID_MF_STACK_OVERFLOW);
+  // For stack-overflow, "caller PC" isn't really user code (FreeRTOS
+  // detected the overflow during its own scheduler check), so leave
+  // s_assert_caller_pc at 0. The HPY_ASSERT_ID_MF_STACK_OVERFLOW
+  // assert_id is the meaningful diagnostic here.
   s_assert_in_progress = true;
 #endif
 
