@@ -16,6 +16,11 @@
 
 #if !defined(IS_BOOTLOADER) && !defined(RF_TOOLS_CLI)
 #include "hpy_assert.h"
+// DVC-2263: Flag defined in happy/memfault/src/memfault_platform_port.c.
+// Setting it before MEMFAULT_ASSERT lets memfault_platform_reboot() know
+// this was an intentional assert (not a real HardFault) even though the
+// `udf` trap inside MEMFAULT_ASSERT will create a CPU exception frame.
+extern volatile bool s_assert_in_progress;
 #endif
 
 //! Collect a coredump when a FreeRTOS assert takes place
@@ -24,6 +29,9 @@
 //!  #define configASSERT(x) if ((x) == 0) vAssertCalled( __FILE__, __LINE__ )
 void vAssertCalled(MEMFAULT_UNUSED const char *file,
                    MEMFAULT_UNUSED int line) {
+#if !defined(IS_BOOTLOADER) && !defined(RF_TOOLS_CLI)
+  s_assert_in_progress = true;
+#endif
   MEMFAULT_ASSERT(0);
 }
 
@@ -40,6 +48,7 @@ void vApplicationStackOverflowHook(MEMFAULT_UNUSED TaskHandle_t xTask,
 
 #if !defined(IS_BOOTLOADER) && !defined(RF_TOOLS_CLI)
   OS_ASSERT_LOCK_ID(HPY_ASSERT_ID_MF_STACK_OVERFLOW);
+  s_assert_in_progress = true;
 #endif
 
   MEMFAULT_ASSERT(0);
